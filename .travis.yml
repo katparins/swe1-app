@@ -1,0 +1,30 @@
+dist: jammy
+language: python
+python:
+  - "3.12"
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - python manage.py migrate
+
+script:
+  - black --check .
+  - flake8 .
+  - coverage run --source=ebdjango,polls manage.py test
+
+after_success:
+  - coveralls
+
+deploy:
+  provider: elasticbeanstalk
+  edge: true
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  region: us-east-1
+  app: ebdjango
+  env: django-env
+  bucket: elasticbeanstalk-us-east-1-234768039176
+  on:
+    branch: main
